@@ -19,13 +19,13 @@ function isAllTrue(array, fn) {
         checkFn = typeof fn;
 
     if (arrLen == 0 || !checkArr) {
-        throw new Error("empty array");
-    } else if(checkFn !== "function") {
-        throw new Error("fn is not a function");
+        throw new Error('empty array');
+    } else if (checkFn !== 'function') {
+        throw new Error('fn is not a function');
     }
 
-    for (var i = 0; i < array.length; i++){
-        if (fn(array[i]) == false){
+    for (var i = 0; i < array.length; i++) {
+        if (fn(array[i]) == false) {
             return false;
         }
     }
@@ -48,13 +48,13 @@ function isSomeTrue(array, fn) {
         checkFn = typeof fn;
 
     if (arrLen == 0 || !checkArr) {
-        throw new Error("empty array");
-    } else if(checkFn !== "function") {
-        throw new Error("fn is not a function");
+        throw new Error('empty array');
+    } else if (checkFn !== 'function') {
+        throw new Error('fn is not a function');
     }
 
-    for (var i = 0; i < array.length; i++){
-        if (fn(array[i]) == true){
+    for (var i = 0; i < array.length; i++) {
+        if (fn(array[i]) == true) {
             return true;
         }
     }
@@ -69,13 +69,13 @@ function isSomeTrue(array, fn) {
  - fn не является функцией (с текстом "fn is not a function")
  */
 function returnBadArguments(fn) {
-    debugger;
     var result = [];
-    if ((typeof fn) !== "function"){
-        throw new Error("fn is not a function");
+
+    if ((typeof fn) !== 'function') {
+        throw new Error('fn is not a function');
     }
 
-    for (var i = 1; i< arguments.length; i ++){
+    for (var i = 1; i< arguments.length; i ++) {
         try {
             fn(arguments[i]);
         } catch (e) {
@@ -105,15 +105,15 @@ function calculator(number) {
         number = 0;
     }
 
-    if ((typeof number) !== "number"){
-        throw new Error("number is not a number");
+    if ((typeof number) !== 'number') {
+        throw new Error('number is not a number');
     }
 
     var res = number;
 
     return {
         sum: function () {
-            for (var i = 0; i<arguments.length; i++){
+            for (var i = 0; i<arguments.length; i++) {
                 res = res + arguments[i];
             }
 
@@ -121,7 +121,7 @@ function calculator(number) {
         },
 
         dif: function () {
-            for (var i = 0; i<arguments.length; i++){
+            for (var i = 0; i<arguments.length; i++) {
                 res = res - arguments[i];
             }
 
@@ -131,16 +131,16 @@ function calculator(number) {
 
         div: function () {
 
-            for (var i = 0; i<arguments.length; i++){
-                if (arguments[i] == 0){
-                    throw new Error("division by 0");
+            for (var i = 0; i<arguments.length; i++) {
+                if (arguments[i] == 0) {
+                    throw new Error('division by 0');
                 }
             }
-            if (number == 0){
-                throw new Error("division by 0");
+            if (number == 0) {
+                throw new Error('division by 0');
             }
 
-            for (var i = 0; i<arguments.length; i++){
+            for (i = 0; i<arguments.length; i++) {
                 res = res/arguments[i];
             }
 
@@ -149,9 +149,7 @@ function calculator(number) {
 
         mul: function () {
 
-            var res = number;
-
-            for (var i = 0; i<arguments.length; i++){
+            for (var i = 0; i<arguments.length; i++) {
                 res = res * arguments[i];
             }
 
