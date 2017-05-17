@@ -30,23 +30,18 @@ function map(array, fn) {
  */
 function reduce(array, fn, initial) {
 
-    var previousValue;
+    var previousValue = initial;
+    var i = 0;
 
     if (initial === undefined) {
         previousValue = array[0];
-
-        for (var i = 1; i < array.length; i++) {
-
-            previousValue = fn(previousValue, array[i], i, array);
-        }
-    } else {
-        previousValue = initial;
-
-        for (i = 0; i < array.length; i++) {
-            previousValue = fn(previousValue, array[i], i, array);
-        }
+        i = 1;
     }
 
+    for (i; i < array.length; i++) {
+
+        previousValue = fn(previousValue, array[i], i, array);
+    }
     return previousValue;
 }
 
@@ -56,7 +51,11 @@ function reduce(array, fn, initial) {
  Функция должна удалить указанное свойство из указанного объекта
  */
 function deleteProperty(obj, prop) {
-    delete obj[prop];
+    if (prop in obj){
+        delete obj[prop];
+    } else {
+        throw new Error("Prop not found in obj");
+    }
 
 }
 
