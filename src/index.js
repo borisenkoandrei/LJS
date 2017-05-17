@@ -45,7 +45,8 @@ function isAllTrue(array, fn) {
 function isSomeTrue(array, fn) {
     var arrLen = array.length,
         checkArr = Array.isArray(array),
-        checkFn = typeof fn;
+        checkFn = typeof fn,
+        falseArray =[];
 
     if (arrLen == 0 || !checkArr) {
         throw new Error("empty array");
@@ -56,8 +57,15 @@ function isSomeTrue(array, fn) {
     for (var i = 0; i < array.length; i++){
         if (fn(array[i]) == true){
             return true;
+        } else {
+            falseArray.push(0);
         }
     }
+
+    if (array.length == falseArray.length){
+        return false;
+    }
+
 }
 
 /*
@@ -114,6 +122,10 @@ function calculator(number) {
     return {
         sum: function () {
             for (var i = 0; i<arguments.length; i++){
+                if ((typeof arguments[i]) !== "number") {
+                    throw new Error("argument is not a number");
+                }
+
                 res = res + arguments[i];
             }
 
@@ -122,6 +134,10 @@ function calculator(number) {
 
         dif: function () {
             for (var i = 0; i<arguments.length; i++){
+                if ((typeof arguments[i]) !== "number") {
+                    throw new Error("argument is not a number");
+                }
+
                 res = res - arguments[i];
             }
 
@@ -134,6 +150,8 @@ function calculator(number) {
             for (var i = 0; i<arguments.length; i++){
                 if (arguments[i] == 0){
                     throw new Error("division by 0");
+                } else if ((typeof arguments[i]) !== "number") {
+                    throw new Error("argument is not a number");
                 }
             }
             if (number == 0){
@@ -152,6 +170,11 @@ function calculator(number) {
             var res = number;
 
             for (var i = 0; i<arguments.length; i++){
+
+                if ((typeof arguments[i]) !== "number") {
+                    throw new Error("argument is not a number");
+                }
+
                 res = res * arguments[i];
             }
 
