@@ -5,7 +5,7 @@
  Напишите аналог встроенного метода forEach для работы с массивами
  */
 function forEach(array, fn) {
-    for (var i = 0; i < array.length; i++) {
+    for (var i = 0; i <array.length; i++) {
         fn(array[i], i, array);
     }
 }
@@ -17,7 +17,7 @@ function forEach(array, fn) {
 function map(array, fn) {
     var result = [];
 
-    for (var i = 0; i < array.length; i++) {
+    for (var i = 0; i<array.length; i++) {
         result.push(fn(array[i], i, array));
     }
 
@@ -35,14 +35,14 @@ function reduce(array, fn, initial) {
     if (initial === undefined) {
         previousValue = array[0];
 
-        for (var i = 1; i < array.length; i++) {
+        for (var i =1; i<array.length; i++) {
 
             previousValue = fn(previousValue, array[i], i, array);
         }
     } else {
         previousValue = initial;
 
-        for (i = 0; i < array.length; i++) {
+        for (i =0; i<array.length; i++) {
             previousValue = fn(previousValue, array[i], i, array);
         }
     }
@@ -84,7 +84,7 @@ function getEnumProps(obj) {
 function upperProps(obj) {
     var props = Object.keys(obj);
 
-    return props.map(function (prop) {
+    return props.map(function(prop) {
         return prop.toUpperCase();
     })
 }
@@ -124,10 +124,8 @@ function slice(array, from, to) {
 
         return result;
     }
-    // копирует от from до конца массива
-
     else if (from !== undefined && to === undefined) {
-        for (i = from; i < array.length; i++) {
+        for (i = from; i <array.length ; i++) {
             result.push(array[i]);
         }
 
