@@ -54,25 +54,14 @@ function prepend(what, where) {
  */
 function findAllPSiblings(where) {
     debugger;
-    var elem = where.childNodes;
-    var result = [];
+    var elem = where.children;
+    var result= [];
 
-    console.log(where);
-    console.log(elem[1]);
-    console.log(elem[1].tagName);
-
-    for (var i = 0; i<elem.length; i++) {
-        console.log('Текущий элемент = ',elem[i]);
-        console.log('Следующий элемент = ', elem[i].nextSibling);
-        console.log('Тег следующего элемента = ' , elem[i].nextSibling.tagName);
-
-        if (elem[i].nextSibling.tagName == 'P') {
-            console.log(Array.isArray(result));
+    for(var i = 0; i < (elem.length - 1); i++) {
+        if (elem[i].nextElementSibling.nodeName === 'P') {
             result.push(elem[i]);
-            console.log(result)
         }
     }
-
     return result;
 
 }
@@ -86,6 +75,14 @@ function findAllPSiblings(where) {
  * @return {Array<string>}
  */
 function findError(where) {
+    var elements = where.children;
+    var res = [];
+
+    for (var i = 0; i<elements.length; i++) {
+        res.push(elements[i].innerHTML);
+    }
+
+    return res;
 
 }
 
@@ -103,6 +100,17 @@ function findError(where) {
  * должно быть преобразовано в <div></div><p></p>
  */
 function deleteTextNodes(where) {
+    var elements = where.childNodes;
+
+    console.log(elements);
+
+    for (var i = 0; i< elements.length; i++) {
+        if (elements[i].nodeType == 3) {
+            where.removeChild(elements[i])
+        }
+    }
+
+    console.log(elements)
 }
 
 /**
@@ -184,7 +192,8 @@ export {
     findAllPSiblings,
     findError,
     deleteTextNodes,
-    deleteTextNodesRecursive,
-    collectDOMStat,
-    observeChildNodes
+    deleteTextNodesRecursive
+    // ,
+    // collectDOMStat,
+    // observeChildNodes
 };
