@@ -53,15 +53,15 @@ function prepend(what, where) {
  * т.к. следующим соседом этих элементов является элемент с тегом P
  */
 function findAllPSiblings(where) {
-    debugger;
     var elem = where.children;
     var result= [];
 
-    for(var i = 0; i < (elem.length - 1); i++) {
+    for (var i = 0; i < (elem.length - 1); i++) {
         if (elem[i].nextElementSibling.nodeName === 'P') {
             result.push(elem[i]);
         }
     }
+
     return result;
 
 }
@@ -102,15 +102,11 @@ function findError(where) {
 function deleteTextNodes(where) {
     var elements = where.childNodes;
 
-    console.log(elements);
-
     for (var i = 0; i< elements.length; i++) {
         if (elements[i].nodeType == 3) {
             where.removeChild(elements[i])
         }
     }
-
-    console.log(elements)
 }
 
 /**
@@ -124,6 +120,15 @@ function deleteTextNodes(where) {
  * должно быть преобразовано в <span><div><b></b></div><p></p></span>
  */
 function deleteTextNodesRecursive(where) {
+    var elements = Array.from(where.childNodes);
+
+    for (var i = 0; i < elements.length; i++) {
+        if (elements[i].nodeType === 3) {
+            where.removeChild(elements[i])
+        } else if (elements[i].nodeType === 1) {
+            deleteTextNodesRecursive(elements[i])
+        }
+    }
 }
 
 /**
@@ -148,8 +153,8 @@ function deleteTextNodesRecursive(where) {
  *   texts: 3
  * }
  */
-function collectDOMStat(root) {
-}
+// function collectDOMStat(root) {
+// }
 
 /**
  * *** Со звездочкой ***
@@ -182,8 +187,8 @@ function collectDOMStat(root) {
  *   nodes: [div]
  * }
  */
-function observeChildNodes(where, fn) {
-}
+// function observeChildNodes(where, fn) {
+// }
 
 export {
     createDivWithText,
