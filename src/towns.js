@@ -36,7 +36,27 @@ let homeworkContainer = document.querySelector('#homework-container');
  * @return {Promise<Array<{name: string}>>}
  */
 function loadTowns() {
+    return new Promise(function (resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", 'https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json',true);
+        xhr.send();
+        xhr.addEventListener("load", function () {
+            var cities = JSON.parse(xhr.responseText);
+
+            cities.sort(function (a,b) {
+                if (a.name > b.name) {
+                    return 1;
+                }
+                if (a.name < b.name) {
+                    return -1;
+                }
+            });
+
+            resolve(cities);
+        })
+    })
 }
+
 
 /**
  * Функция должна проверять встречается ли подстрока chunk в строке full
@@ -52,6 +72,13 @@ function loadTowns() {
  * @return {boolean}
  */
 function isMatching(full, chunk) {
+    full = full.toLowerCase();
+    chunk = chunk.toLowerCase();
+    if (full.indexOf(chunk) !== -1){
+        return true
+    } else {
+        return false
+    }
 }
 
 let loadingBlock = homeworkContainer.querySelector('#loading-block');
@@ -60,7 +87,27 @@ let filterInput = homeworkContainer.querySelector('#filter-input');
 let filterResult = homeworkContainer.querySelector('#filter-result');
 let townsPromise;
 
+loadTowns().then(function () {
+    loadingBlock.textContent = 'Города загружены';
+    filterBlock.style.display = 'block';
+});
+
 filterInput.addEventListener('keyup', function() {
+    loadTowns().then(function (result) {
+        var input = filterInput.value;
+
+        for (var i = 0; i< result.length; i++){
+            if (isMatching(result[i].name, input)){
+                var resElem = document.createElement('div');
+                resElem.innerHTML = result[i].name;
+                filterResult.appendChild(resElem);
+            }
+        }
+
+        if (input === ""){
+            filterResult.innerHTML = "";
+        }
+    });
 });
 
 export {
