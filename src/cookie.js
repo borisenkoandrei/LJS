@@ -44,3 +44,5 @@ filterNameInput.addEventListener('keyup', function() {
 
 addButton.addEventListener('click', () => {
 });
+
+console.log(document.cookie)
