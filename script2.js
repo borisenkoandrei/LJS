@@ -33,8 +33,8 @@ function vkInit() {
 var template = `
 {{#each items}}
     <div class="friend">
-        <img class="friend_img" src="{{photo_200}}">
-        <div class="friend_name">{{first_name}} {{last_name}}</div>
+        <img src="{{photo_200}}">
+        <div class="name">{{first_name}} {{last_name}}</div>
     </div>
 {{/each}}
 `;
