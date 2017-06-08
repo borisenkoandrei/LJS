@@ -41,9 +41,41 @@ let addButton = homeworkContainer.querySelector('#add-button');
 let listTable = homeworkContainer.querySelector('#list-table tbody');
 let readableCookies = [];
 
+/**
+ * Первый запуск
+ */
+
 (function init() {
-    wiewAllCookie();
+    createTable();
 })();
+
+
+
+/**
+ * Возвращаем список всех имеющихся кук
+ */
+function prepearCookiesArray() {
+    var prepearCookies = [];
+
+    if (document.cookie === ""){
+         console.log("Кук нет");
+         return;
+    }
+
+    var cookie = document.cookie.split("; ");
+    cookie.forEach(function (nameValuePar) {
+        var n = nameValuePar.split("=");
+        prepearCookies.push({name:n[0],value:n[1]})
+    });
+
+    return prepearCookies;
+
+};
+
+/**
+ * создание строки таблицы
+ *
+ */
 
 function addRow(name, value) {
     var newRow = listTable.insertRow(-1);
@@ -69,34 +101,35 @@ function addRow(name, value) {
 }
 
 /**
-* Выыодит все сохраненные куки
-*
-*/
-function wiewAllCookie() {
+ * Создание таблицы
+ *
+ */
+
+
+function createTable() {
     listTable.innerHTML = "";
-    readableCookies = [];
-    if (document.cookie == ""){
+
+    if (!prepearCookiesArray()){
         return;
     }
 
-    var cookie = document.cookie.split("; ");
-    cookie.forEach(function (nameValuePar) {
-        var n = nameValuePar.split("=");
-        readableCookies.push({
-            name:n[0],
-            value:n[1]
-        })
-    });
+    prepearCookiesArray().forEach(function (cookieItem) {
+        addRow(cookieItem.name, cookieItem.value);
 
-    readableCookies.forEach(function (cookieObj) {
-        addRow(cookieObj.name, cookieObj.value);
-    });
-};
+    })
+
+}
+
+
+/**
+ * Фильтр
+ */
 
 filterNameInput.addEventListener('keyup', function() {
+
     listTable.innerHTML = "";
 
-    readableCookies.forEach(function (cookieObj) {
+    prepearCookiesArray().forEach(function (cookieObj) {
         if (cookieObj.name.includes(filterNameInput.value) || cookieObj.value.includes(filterNameInput.value)){
             addRow(cookieObj.name, cookieObj.value)
         }
@@ -104,24 +137,28 @@ filterNameInput.addEventListener('keyup', function() {
 
 
     if(filterNameInput.value === ""){
-        wiewAllCookie();
+        createTable();
     }
 
 
 });
 
+/**
+ * Добавление куки
+ */
+
 addButton.addEventListener('click', () => {
     document.cookie = `${addNameInput.value}=${addValueInput.value}`;
 
-    if (cookieObj.name.includes(filterNameInput.value) || cookieObj.value.includes(filterNameInput.value)){
-        addRow(cookieObj.name, cookieObj.value)
+    if (!filterNameInput.value){
+        listTable.innerHTML = "";
+        createTable();
+    }else if (filterNameInput.value){
+        listTable.innerHTML = "";
+        prepearCookiesArray().forEach(function (cookieObj) {
+            if (cookieObj.name.includes(filterNameInput.value) || cookieObj.value.includes(filterNameInput.value)){
+                addRow(cookieObj.name, cookieObj.value)
+            }
+        })
     }
-
-
-
-    listTable.innerHTML = "";
-    if (filterNameInput === ""){
-        wiewAllCookie();
-    }
-
 });
