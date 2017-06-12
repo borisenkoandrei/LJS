@@ -42,10 +42,8 @@ var templateFn = Handlebars.compile(template);
 
 new Promise(resolve => window.onload = resolve)
     .then(() => vkInit())
-    .then(() => vkApi('users.get', {name_case: 'gen'}))
-    .then(response => {
-        headerInfo.textContent = `Друзья ${response[0].first_name} ${response[0].last_name}`;
-    })
     .then(() => vkApi('friends.get', {fields: 'photo_200'}))
-    .then(response => friends.innerHTML = templateFn(response))
+    .then(response => {
+        console.log(response);
+        return friends.innerHTML = templateFn(response)})
     .catch(e => alert('Ошибка: ' + e.message));

@@ -3,8 +3,8 @@ body{
 }
 
 .container{
-    width: 600px;
-    height: 400px;
+    width: 800px;
+    height: 600px;
     border-radius: 15px;
     border: 1px solid #000;
     position: absolute;
@@ -91,10 +91,13 @@ input:focus{
     height: 100%;
     border-left: 1px solid black;
     box-sizing: border-box;
+    vertical-align: top;
 }
 
 .friendsList_left_value{
-    height: 223px;
+    height: 411px;
+    border-right: 1px solid black;
+    overflow-y: scroll;
 }
 
 .friendsList_right{
@@ -104,7 +107,8 @@ input:focus{
 }
 
 .friendsList_right_value{
-    height: 223px;
+    height: 411px;
+    overflow-y: scroll;
 }
 
 .footer{
@@ -123,7 +127,30 @@ button{
     border-radius: 100px;
     border: 1px solid black;
     color: white;
+    display: inline-block;
+    vertical-align: middle;
 }
 button:hover{
     color: black;
 }
+
+/*
+блок friend
+*/
+
+.friend_img{
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: inline-block;
+    vertical-align: middle;
+
+}
+
+.friend_name{
+    font-size: 20px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+
