@@ -8,10 +8,18 @@ var template = `
 {{/each}}
 `;
 
+var template2 = `
+{{#each response}}
+    <div class="friend">
+        <img class="friend_img" src="{{photo_100}}">
+        <div class="friend_name">{{first_name}} {{last_name}}</div>
+        <button>Убрать</button>
+    </div>
+{{/each}}
+`;
+
 var templateFn = Handlebars.compile(template);
-
-var fr = document.querySelector("friends");
-
+var templateFn2 = Handlebars.compile(template2);
 window.addEventListener('load', function () {
     return new Promise(function (resolve, reject) {
         VK.init({
@@ -36,11 +44,19 @@ window.addEventListener('load', function () {
 
         })
     }).then(function (response) {
-        var allFriends = response;// Массив
-        var selectedFriends = {response:[]};//Массив
+        var allFriends;
+        var selectedFriends;
+
+        if(localStorage.getItem('allFriends') && localStorage.getItem('selectedFriends')){
+            allFriends = JSON.parse(localStorage.getItem('allFriends'));
+            selectedFriends = JSON.parse(localStorage.getItem('selectedFriends'));
+        } else {
+            allFriends = response;// Массив
+            selectedFriends = {response:[]};//Массив
+        };
 
         friends.innerHTML = templateFn(allFriends);//DOM УЗЕЛ
-        selectedFr.innerHTML = templateFn(selectedFriends);//DOM УЗЕЛ
+        selectedFr.innerHTML = templateFn2(selectedFriends);//DOM УЗЕЛ
 
 
         var friendCards = document.querySelectorAll('.friend');
@@ -48,47 +64,96 @@ window.addEventListener('load', function () {
         for (var i =0; i < friendCards.length; i++){
             friendCards[i].addEventListener('click', function (e) {
                 if (e.target.tagName === "BUTTON" && e.currentTarget.parentElement.id === "friends"){
-                    var name = e.currentTarget.children[1].innerText.toLowerCase();
+
                     for (var i =0;i<allFriends.response.length;i++){
                         var firstNameFromFriendList =  allFriends.response[i].first_name.toLowerCase();
                         var secondNameFromFriendList = allFriends.response[i].last_name.toLowerCase();
                         var FIO = firstNameFromFriendList + " " + secondNameFromFriendList;
 
-                        if (FIO.includes(name)){
+                        if (FIO.includes(e.currentTarget.children[1].innerText.toLowerCase())){
                             var elem = friends.removeChild(e.currentTarget);
                             selectedFr.appendChild(elem);
                             e.target.innerHTML = "Убрать";
                             selectedFriends.response.push(allFriends.response[i])
                             allFriends.response.splice(i,1);
-                            console.log(allFriends);
-                            console.log(selectedFriends);
-
-
-
+                            break;
                         }
                     }
                 }  else if (e.target.tagName === "BUTTON" && e.currentTarget.parentElement.id === "selectedFr"){
-                    var name = e.currentTarget.children[1].innerText.toLowerCase();
+
                     for (var i =0;i<selectedFriends.response.length;i++){
                         var firstNameFromselectedFr =  selectedFriends.response[i].first_name.toLowerCase();
                         var secondNameselectedFr = selectedFriends.response[i].last_name.toLowerCase();
                         var FIO = firstNameFromselectedFr + " " + secondNameselectedFr;
 
-                        if (FIO.includes(name)){
+                        if (FIO.includes(e.currentTarget.children[1].innerText.toLowerCase())){
                             var elem = selectedFr.removeChild(e.currentTarget);
                             friends.appendChild(elem);
                             e.target.innerHTML = "Добавить";
                             allFriends.response.push(selectedFriends.response[i])
                             selectedFriends.response.splice(i,1);
-                            console.log(allFriends);
-                            console.log(selectedFriends)
-
-
+                            break;
                         }
                     }
                 }
             });
-        }
+        };
+
+
+        findFriend.addEventListener('keyup', function (e) {
+            if(findFriend.value === ""){
+                for (var i =0; i < friends.children.length;i++) {
+                    friends.children[i].style.display = "block";
+                }
+            } else {
+                for (var i =0; i < friends.children.length;i++){
+                    var FIO = friends.children[i].children[1].innerText.toLowerCase();
+                    if (FIO.includes(findFriend.value.toLowerCase())){
+                        console.log(FIO);
+                        console.log(findFriend.value.toLowerCase())
+
+                        friends.children[i].style.display = "block";
+                    } else {
+                        friends.children[i].style.display = "none";
+                    }
+                }
+            }
+
+        })
+
+        findSelectedFriend.addEventListener('keyup', function (e) {
+            if(findSelectedFriend.value === ""){
+                for (var i =0; i < selectedFr.children.length;i++) {
+                    selectedFr.children[i].style.display = "block";
+                }
+            } else {
+                for (var i =0; i < selectedFr.children.length;i++){
+                    var FIO = selectedFr.children[i].children[1].innerText.toLowerCase();
+                    if (FIO.includes(findSelectedFriend.value.toLowerCase())){
+                        console.log(FIO);
+                        console.log(findSelectedFriend.value.toLowerCase())
+
+                        selectedFr.children[i].style.display = "block";
+                    } else {
+                        selectedFr.children[i].style.display = "none";
+                    }
+                }
+            }
+
+        });
+
+        save.addEventListener('click', function (e) {
+
+            localStorage.setItem('allFriends', JSON.stringify(allFriends));
+            localStorage.setItem('selectedFriends', JSON.stringify(selectedFriends));
+
+
+        })
+
+
+
+
     })
+
     
 })
