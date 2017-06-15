@@ -20,6 +20,26 @@ var template2 = `
 
 var templateFn = Handlebars.compile(template);
 var templateFn2 = Handlebars.compile(template2);
+
+var dragObject = {};
+
+
+function delta(e) {
+    var startX = dragObject.target.getBoundingClientRect().left;
+    var startY = dragObject.target.getBoundingClientRect().top;
+    var clickX = e.pageX;
+    var clickY = e.pageY;
+
+    console.log(e.scrollX)
+    console.log(e.scrollY)
+
+    e.scrollY
+
+    dragObject.deltaX = clickX- startX - window.pageXOffset;
+    dragObject.deltaY = clickY -startY - window.pageYOffset;
+}
+
+
 window.addEventListener('load', function () {
     return new Promise(function (resolve, reject) {
         VK.init({
@@ -61,7 +81,8 @@ window.addEventListener('load', function () {
 
         var friendCards = document.querySelectorAll('.friend');
 
-        for (var i =0; i < friendCards.length; i++){
+        function addEvent(){
+            for (var i =0; i < friendCards.length; i++){
             friendCards[i].addEventListener('click', function (e) {
                 if (e.target.tagName === "BUTTON" && e.currentTarget.parentElement.id === "friends"){
 
@@ -97,7 +118,9 @@ window.addEventListener('load', function () {
                     }
                 }
             });
-        };
+        }};
+
+        addEvent();
 
 
         findFriend.addEventListener('keyup', function (e) {
@@ -138,6 +161,96 @@ window.addEventListener('load', function () {
                         selectedFr.children[i].style.display = "none";
                     }
                 }
+            }
+
+        });
+
+        document.addEventListener('mousedown', function (e) {
+            document.ondragstart = function() { return false };
+            document.body.onselectstart = function() { return false };
+            if(e.target.tagName === "BUTTON" || !e.target.closest('.friend')){
+                return
+            }
+
+            if (e.target.tagName !== "BUTTON"){
+                dragObject.target = e.target.closest('.friend');
+                dragObject.avatar = dragObject.target.cloneNode(true);
+                dragObject.targetStartCoord = dragObject.target.getBoundingClientRect();
+                document.body.appendChild(dragObject.avatar);
+                dragObject.avatar.style.position = "absolute";
+                dragObject.avatar.style.top = dragObject.targetStartCoord.top+'px';
+                dragObject.avatar.style.left = dragObject.targetStartCoord.left+'px';
+            }
+
+            delta(e);
+
+            console.log(dragObject.avatar.nodeType)
+            console.log(dragObject.target.parentElement);
+
+        });
+
+        document.addEventListener('mousemove', function (e) {
+            if(!dragObject.avatar){
+                return new Error("Ошибка");
+            }
+
+            dragObject.avatar.style.top = e.pageY - dragObject.deltaY+'px';
+            dragObject.avatar.style.left = e.pageX - dragObject.deltaX+'px';
+
+        });
+
+        document.addEventListener('mouseup', function (e) {
+            if(e.target.tagName === "BUTTON" || e.target.closest('.friend') == null){
+                return;
+            }
+
+            dragObject.avatar.hidden = true;
+            var endTarget = document.elementFromPoint(e.clientX, e.clientY);
+            dragObject.avatar.hidden = false;
+
+
+            if ((endTarget.id === 'selectedFr' || endTarget.closest("#selectedFr")) && dragObject.target.parentElement.id === "friends"){
+                dragObject.target.children[2].innerText = "Убрать"
+                selectedFr.appendChild(dragObject.target);
+                document.body.removeChild(dragObject.avatar);
+
+
+                for (var i =0;i<allFriends.response.length;i++){
+                    var firstNameFromFriendList =  allFriends.response[i].first_name.toLowerCase();
+                    var secondNameFromFriendList = allFriends.response[i].last_name.toLowerCase();
+                    var FIO = firstNameFromFriendList + " " + secondNameFromFriendList;
+
+                    if (FIO.includes(dragObject.target.children[1].innerText.toLowerCase())){
+                        selectedFriends.response.push(allFriends.response[i])
+                        allFriends.response.splice(i,1);
+                    }
+                }
+
+                dragObject = {};
+            } else if ((endTarget.id === 'friends' || endTarget.closest("#friends")) && dragObject.target.parentElement.id === "selectedFr") {
+                dragObject.target.children[2].innerText = "Добавить";
+                friends.appendChild(dragObject.target);
+                document.body.removeChild(dragObject.avatar);
+
+                for (var i =0;i<selectedFriends.response.length;i++){
+                    var firstNameFromselectedFr =  selectedFriends.response[i].first_name.toLowerCase();
+                    var secondNameselectedFr = selectedFriends.response[i].last_name.toLowerCase();
+                    var FIO = firstNameFromselectedFr + " " + secondNameselectedFr;
+
+                    if (FIO.includes(dragObject.target.children[1].innerText.toLowerCase())){
+                        allFriends.response.push(selectedFriends.response[i])
+                        selectedFriends.response.splice(i,1);
+                    }
+                }
+
+
+
+
+                dragObject = {};
+
+            } else {
+                document.body.removeChild(dragObject.avatar);
+                dragObject = {};
             }
 
         });
