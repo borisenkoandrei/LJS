@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{
+            box-sizing: border-box;
+        }
+        body,html{
+            width: 100%;
+            height: 100%;
+            font-size: 0;
+            margin: 0;
+            position: relative;
+        }
+        .left-col{
+            width: 50%;
+            height: 100%;
+            display: inline-block;
+            border: 1px solid black;
+            vertical-align: top;
+        }
+        .right-col{
+            width: 50%;
+            height: 100%;
+            display: inline-block;
+            border: 1px solid black;
+            vertical-align: top;
+
+        }
+        .elem{
+            padding: 20px 20px;
+            font-size: 16px;
+            border: 1px solid black;
+
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="left" class="left-col droppable">
+    <div class="elem">1</div>
+    <div class="elem">2</div>
+    <div class="elem">3</div>
+    <div class="elem">4</div>
+    <div class="elem">5</div>
+
+</div>
+<div id="right" class="right-col droppable"></div><script src="dnd.js"></script>
+</body>
+</html>
