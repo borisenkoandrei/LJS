@@ -30,10 +30,10 @@ function delta(e) {
     var clickX = e.pageX;
     var clickY = e.pageY;
 
-    console.log(e.scrollX)
-    console.log(e.scrollY)
+    console.log(e.scrollX);
+    console.log(e.scrollY);
 
-    e.scrollY
+    e.scrollY;
 
     dragObject.deltaX = clickX- startX - window.pageXOffset;
     dragObject.deltaY = clickY -startY - window.pageYOffset;
@@ -73,7 +73,7 @@ window.addEventListener('load', function () {
         } else {
             allFriends = response;// Массив
             selectedFriends = {response:[]};//Массив
-        };
+        }
 
         friends.innerHTML = templateFn(allFriends);//DOM УЗЕЛ
         selectedFr.innerHTML = templateFn2(selectedFriends);//DOM УЗЕЛ
@@ -111,29 +111,29 @@ window.addEventListener('load', function () {
                             var elem = selectedFr.removeChild(e.currentTarget);
                             friends.appendChild(elem);
                             e.target.innerHTML = "Добавить";
-                            allFriends.response.push(selectedFriends.response[i])
+                            allFriends.response.push(selectedFriends.response[i]);
                             selectedFriends.response.splice(i,1);
                             break;
                         }
                     }
                 }
             });
-        }};
+        }}
 
         addEvent();
 
 
         findFriend.addEventListener('keyup', function (e) {
             if(findFriend.value === ""){
-                for (var i =0; i < friends.children.length;i++) {
+                for (var i = 0; i < friends.children.length;i++) {
                     friends.children[i].style.display = "block";
                 }
             } else {
-                for (var i =0; i < friends.children.length;i++){
+                for (var i = 0; i < friends.children.length;i++){
                     var FIO = friends.children[i].children[1].innerText.toLowerCase();
                     if (FIO.includes(findFriend.value.toLowerCase())){
                         console.log(FIO);
-                        console.log(findFriend.value.toLowerCase())
+                        console.log(findFriend.value.toLowerCase());
 
                         friends.children[i].style.display = "block";
                     } else {
@@ -141,8 +141,7 @@ window.addEventListener('load', function () {
                     }
                 }
             }
-
-        })
+        });
 
         findSelectedFriend.addEventListener('keyup', function (e) {
             if(findSelectedFriend.value === ""){
@@ -154,7 +153,7 @@ window.addEventListener('load', function () {
                     var FIO = selectedFr.children[i].children[1].innerText.toLowerCase();
                     if (FIO.includes(findSelectedFriend.value.toLowerCase())){
                         console.log(FIO);
-                        console.log(findSelectedFriend.value.toLowerCase())
+                        console.log(findSelectedFriend.value.toLowerCase());
 
                         selectedFr.children[i].style.display = "block";
                     } else {
@@ -214,18 +213,16 @@ window.addEventListener('load', function () {
                 selectedFr.appendChild(dragObject.target);
                 document.body.removeChild(dragObject.avatar);
 
-
                 for (var i =0;i<allFriends.response.length;i++){
                     var firstNameFromFriendList =  allFriends.response[i].first_name.toLowerCase();
                     var secondNameFromFriendList = allFriends.response[i].last_name.toLowerCase();
                     var FIO = firstNameFromFriendList + " " + secondNameFromFriendList;
 
                     if (FIO.includes(dragObject.target.children[1].innerText.toLowerCase())){
-                        selectedFriends.response.push(allFriends.response[i])
+                        selectedFriends.response.push(allFriends.response[i]);
                         allFriends.response.splice(i,1);
                     }
                 }
-
                 dragObject = {};
             } else if ((endTarget.id === 'friends' || endTarget.closest("#friends")) && dragObject.target.parentElement.id === "selectedFr") {
                 dragObject.target.children[2].innerText = "Добавить";
@@ -238,35 +235,20 @@ window.addEventListener('load', function () {
                     var FIO = firstNameFromselectedFr + " " + secondNameselectedFr;
 
                     if (FIO.includes(dragObject.target.children[1].innerText.toLowerCase())){
-                        allFriends.response.push(selectedFriends.response[i])
+                        allFriends.response.push(selectedFriends.response[i]);
                         selectedFriends.response.splice(i,1);
                     }
                 }
-
-
-
-
                 dragObject = {};
-
             } else {
                 document.body.removeChild(dragObject.avatar);
                 dragObject = {};
             }
-
         });
 
         save.addEventListener('click', function (e) {
-
             localStorage.setItem('allFriends', JSON.stringify(allFriends));
             localStorage.setItem('selectedFriends', JSON.stringify(selectedFriends));
-
-
         })
-
-
-
-
     })
-
-    
 })
