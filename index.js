@@ -2,149 +2,283 @@
 ymaps.ready(init);
 
 function init () {
-    var comment ={};
 
-    // Создание экземпляра карты и его привязка к контейнеру с
-    // заданным id ("map").
+    /**
+     * Переменная для хранения комментариев
+     * @type {Array}
+     */
+    var comments =[];
+
+    /**
+     * Подключаем карту и задаем контейнер для отображения
+     * @type {ymaps.Map}
+     */
     var myMap = new ymaps.Map('map', {
         center: [55.76, 37.64], // Москва
-        zoom: 10
+        zoom: 11,
+        controls: ["zoomControl", "fullscreenControl"],
+        nativeFullscreen: true
     }, {
         searchControlProvider: 'yandex#search'
     });
 
-    // Шаблон контента балуна.
-    var baloonLayout = ymaps.templateLayoutFactory.createClass(
+
+    /**
+     * Шаблон карусели кластера.
+     */
+    var clusterContent = ymaps.templateLayoutFactory.createClass(
+        '<div class="cluster-container">'+
+            '<div class="cluster-place">{{properties.place}}</div>'+
+            '<a href="#" class="cluster-adres">{{properties.adres}}</a>'+
+            '<div class="cluster-comment">{{properties.comment}}</div>'+
+            '<div class="cluster-date">{{properties.date}}</div>'+
+            '<div class="cluster-coords">{{properties.coords}}</div>'+
+        '</div>',{
+            build: function () {
+                this.constructor.superclass.build.call(this);
+                var address = this._parentElement.querySelector('.cluster-adres');
+
+                address.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    var coords = e.target.parentElement.lastElementChild.innerText.split(",");
+                    openBalloon(coords);
+                });
+            }
+    });
+
+    /**
+     * Шаблон балуна
+     */
+    var baloonContentLayout = ymaps.templateLayoutFactory.createClass(
         '<div class="baloon">'+
-        '<div class="header">{{addres}}</div>'+
-        '<div class="comments">{{properties.name}}</div>'+
+        '<div class="header">' +
+        '<div class="adres">{{adres}}</div>'+
+        '<a href="#" class="close">X</a>' +
+        '</div>'+
+        '<div class="comments">'+
+        '{% if comments.length %}' +
+        '{% for comment in comments %}' +
+            '<div class="com">'+
+                '<div class="name">{{comment.name}}</div>'+
+                '<div class="date">{{comment.date}}</div>'+
+                '<div class="place">{{comment.place}}</div>'+
+                '<div class="text">{{comment.comment}}</div>'+
+            '</div>' +
+
+        '{% endfor %}' +
+        '{% else %}' +
+        '<div class="temporal-text">Отзывов еще нет...</div>' +
+        '{% endif %}'+
+        '</div>'+
         '<div class="comment">'+
+        '<div class="comment-title">Ваш отзыв</div>'+
         '<input type="text" id="Name" placeholder="Имя">'+
         '<input type="text" id="place" placeholder="Место">'+
         '<input type="text" id="comment_text" placeholder="Отзыв">'+
         '</div>'+
         '<button id="add">Добавить</button>'+
-        '<button id="show">Функ.</button>'+
-        '<button id="clr">CLR</button>'+
-        '</div>'
+        '</div>',{
+            build: function () {
+                this.constructor.superclass.build.call(this);
+                this.add = this._parentElement.querySelector('#add');
+                this.clse = this._parentElement.querySelector('.close');
+                this.addListeners();
+
+        }, addListeners:function () {
+                this.add.addEventListener('click', this.addPlacemark.bind(this));
+                this.clse.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    myMap.balloon.close()
+                })
+
+        }, addPlacemark: function () {
+                var coords = this.getData().coords;
+                save(coords);
+            }
+        }
     );
 
-    // Массив со всеми добавленными комментариями.
-    var comment = [];
+    var baloonLayout = ymaps.templateLayoutFactory.createClass(
+        '<div class="b">' +
+        '{% include options.contentLayout %}'+
+        '</div>',{
+            getShape: function () {
+                var el = this.getElement(),
+                    result = null;
+                if (el) {
+                    var firstChild = el.firstChild;
+                    result = new ymaps.shape.Rectangle(
+                        new ymaps.geometry.pixel.Rectangle([
+                            [0, 0],
+                            [firstChild.offsetWidth, firstChild.offsetHeight]
+                        ])
+                    );
+                }
+                return result;
+            }
+        }
+    );
 
-    if(localStorage.getItem("comment")){
-        var comment = JSON.parse(localStorage.getItem("comment"))
-        comment.forEach(function (elem) {
-            createPlacemark(elem)
-        })
-    }
+    /**
+     * Добавляем кластер
+     * @type {ymaps.Clusterer}
+     */
+    var cluster = new ymaps.Clusterer({
+        preset: 'islands#invertedVioletClusterIcons',
+        groupByCoordinates: false,
+        clusterDisableClickZoom: true,
+        clusterHideIconOnBalloonOpen: false,
+        clusterOpenBalloonOnClick: true,
+        clusterBalloonContentLayout: 'cluster#balloonCarousel',
+        clusterBalloonItemContentLayout: clusterContent
+    });
 
-    // функция обратного геокодирования
-    function geoStreet(coords) {
+    /**
+     * Функция обратного геокодирования. Получаем адресс по координатам
+     * @param coords
+     * @returns {*}
+     */
+    function coordsToAdress(coords) {
         return ymaps.geocode(coords, {kind:"house"})
             .then(function (res) {
                 return res.geoObjects.get(0).getAddressLine();
             });
-    };
+    }
 
-    // Открывает балун и сохраняет в properties адрес координат балуна
-    function openBaloon(coords){
-        geoStreet(coords).then(function (addres) {
+    /**
+     * Открываем балун по координатам с сохранением адреса и координат в properties
+     * @param coords
+     */
+    function openBalloon(coords) {
+        coordsToAdress(coords).then(function (adres) {
             myMap.balloon.open(coords, {
-                addres: addres
+                adres: adres,
+                coords: coords,
+                comments: filterComment(adres)
             }, {
-                contentLayout: baloonLayout,
-                closeButton: true
-            });
+                contentLayout: baloonContentLayout,
+                layout:baloonLayout,
+                closeButton: false
+            })
         })
     }
 
-    // Создаем метки при загрузке
-    function createPlacemark(item) {
-        var placemark = new ymaps.Placemark(item.coords, {
-
-            date: item.date,
-            name: item.name,
-            place: item.place,
-            comment: item.comment
-        },{
-            balloonContentLayout: baloonLayout
+    /**
+     * Фильтруем comments по адресу
+     * @param adres
+     * @returns {Array} возвращает объект с данными для добавления метки
+     */
+    function filterComment(adres){
+        var result =[];
+        comments.forEach(function (comment) {
+            if(comment.adres === adres){
+                result.push(comment);
+            }
         });
-
-        myMap.geoObjects.add(placemark);
-
+        return result;
     }
 
+    /**
+     * Функция добавляет объект комментария в массив comments,
+     * обновляет балун и добавляет метку на карту
+     * @param coords
+     */
+    function save(coords) {
+        coordsToAdress(coords).then(function (adres) {
+            var comment = {
+                date: new Date().toLocaleString(),
+                adres: adres,
+                name: Name.value,
+                place: place.value,
+                coords:coords,
+                comment: comment_text.value
+            };
+            comments.push(comment);
+            updateBalloon(adres,coords);
+            addPlacemark(coords, comment);
+            addToLocalStorage(comments);
+        })
+    }
 
-    // Добавляет метку на карту при нажатии на кнопку добавить
-    function addPlacemark(coords) {
-        var geo = geoStreet(coords)
-        var placemark = new ymaps.Placemark(coords, {
+    /**
+     * Функция добавляет метку на карту и в кластер
+     * @param coords
+     * @param comment
+     */
+    function addPlacemark(coords, comment) {
+        coordsToAdress(coords).then(function (adres) {
+            var placemark = new ymaps.Placemark(coords,
+                {
+                    adres: comment.adres,
+                    coords: comment.coords,
+                    comment: comment.comment,
+                    place: comment.place,
+                    date: comment.date,
+                    comments: filterComment(adres)
+                }, {
+                    balloonContentLayout: baloonLayout,
+                    balloonCloseButton: false
 
-            adres: geo,
-            date: new Date().toLocaleString(),
-            name: Name.value,
-            place: place.value,
-            comment: comment_text.value
+                });
+            // myMap.geoObjects.add(placemark);
 
-        },{
-            balloonContentLayout: baloonLayout
+            cluster.add(placemark);
+            myMap.geoObjects.add(cluster);
         });
-
-        createPlacemarkObject(placemark);
-
-        myMap.geoObjects.add(placemark);
     }
 
-    //сохраняем comment в localstorage
-    function saveLocalStorage(item) {
-        localStorage.setItem("comment", JSON.stringify(item));
-
+    /**
+     * Обновляем балун
+     * @param adres
+     * @param coords
+     */
+    function updateBalloon(adres,coords) {
+        myMap.balloon.setData({
+            adres: adres,
+            coords: coords,
+            comments: filterComment(adres)
+        });
     }
 
-    //Добавляем
-    function createPlacemarkObject(placemark) {
-        var coords = placemark.geometry.getCoordinates();
-        var placemarkObject = {
-                coords: coords,
-                date : placemark.properties.get('date'),
-                name: placemark.properties.get('name'),
-                place: placemark.properties.get('place'),
-                comment: placemark.properties.get('comment')
-        };
-
-        comment.push(placemarkObject);
-    }
-
+    /**
+     * Вешаем обработчик событий на карту. Если балун открыт - закрываем его.
+     */
     myMap.events.add('click', function (e) {
         var coords = e.get('coords');
-        console.log(coords);
-        openBaloon(coords);
-    });
-
-    myMap.geoObjects.events.add('click', function (e) {
-        // Получение ссылки на дочерний объект, на котором произошло событие.
-        var object = e.get('target');
-        console.log(object.geometry.getCoordinates())
-    });
-
-    document.addEventListener("click", function (e) {
-        if (e.target.id === "add"){
-            var baloonCoords = myMap.balloon.getPosition();
-            addPlacemark(baloonCoords);
-            saveLocalStorage(comment);
+        if (myMap.balloon.isOpen()){
+            myMap.balloon.close();
+        } else{
+            openBalloon(coords);
         }
     });
 
-    document.addEventListener("click", function (e) {
-        if (e.target.id === "show"){
-            console.log(JSON.parse(localStorage.getItem("comment")))
-        }
-    });
 
-    document.addEventListener("click", function (e) {
-        if (e.target.id === "clr"){
-            localStorage.clear();
+    /**
+     * Добавляем массив с комментариями в localstorage
+     * @param comments
+     */
+    function addToLocalStorage(comments) {
+        localStorage.setItem('comments', JSON.stringify(comments));
+    }
+
+
+    if(localStorage.getItem('comments')){
+        var localData = JSON.parse(localStorage.getItem('comments'));
+        localData.forEach(function (item) {
+            addPlacemark(item.coords, item)
+        });
+
+        comments = JSON.parse(localStorage.getItem('comments'));
+    }
+
+    /**
+     * Вешаем обраьотчик событик по клику на метки
+     */
+    myMap.geoObjects.events.add('click',function (e) {
+        var coords = e.get('target').geometry.getCoordinates();
+        if (!e.get('target')._clusterListeners) {
+            openBalloon(coords);
         }
     });
 };
+
